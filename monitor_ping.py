@@ -14,7 +14,7 @@ class PingMonitor:
         self.is_running = False
 
     def get_headers(self) -> list:
-        return ["INT_IP", "EXT_IP", "INT_LATENCY", "EXT_LATENCY"]
+        return ["TIMESTAMP", "INT_IP", "EXT_IP", "INT_LATENCY", "EXT_LATENCY"]
 
     def get_ping_time(self, target) -> float | str:
         try:
@@ -52,6 +52,8 @@ class PingMonitor:
             return
         self.is_running = True
         while self.is_running:
+            start_time = time.time()
+
             int_time = self.get_ping_time(self.int_ip)
             ext_time = self.get_ping_time(self.ext_ip)
             row = [datetime.now().strftime("%Y-%m-%d %H:%M:%S")] + [self.int_ip, self.ext_ip, int_time, ext_time]
@@ -61,7 +63,8 @@ class PingMonitor:
             if is_alert:
                 csv.write(self.file_alert, row)
 
-            time.sleep(1)
+            sleep_time = 1 - (time.time() - start_time)
+            time.sleep(sleep_time if sleep_time > 0 else 0)
     
     def quit(self):
         self.is_running = False
